@@ -1,3 +1,2 @@
-aiogram>=2.0.1
-uvloop>=0.12.1
-ujson==1.35
+python-telegram-bot==11.1.0
+
