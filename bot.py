@@ -29,7 +29,10 @@ def help_message(bot, update):
 
 def alarm(bot, job):
     """Send the alarm message."""
-    bot.send_message(job.context, text='Ping!')
+    query = Message.select().where(Message.chat_id == job.context) \
+                               .order_by(Message.created.desc()).get()
+    bot.send_message(job.context, 
+                     text=f'@{query.to_user} Ping!\n{query.content}')
 
 
 def set_ping(bot, update, args, job_queue, chat_data):
