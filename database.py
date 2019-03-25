@@ -17,6 +17,7 @@ class Message(Model):
     content = TextField()
     from_user = CharField()
     to_user = CharField()
+    to_user_id = CharField()
 
     class Meta:
         database = db

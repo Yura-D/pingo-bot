@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 
 from telegram.ext import Updater, CommandHandler
+from telegram import ParseMode
 from database import Message
 
 
@@ -31,8 +32,11 @@ def alarm(bot, job):
     """Send the alarm message."""
     query = Message.select().where(Message.chat_id == job.context) \
                                .order_by(Message.created.desc()).get()
+    text = (f"[{query.to_user}](tg://user?id={query.to_user_id}) " +
+           f"Ping!\n{query.content}")
     bot.send_message(job.context, 
-                     text=f'@{query.to_user} Ping!\n{query.content}')
+                     text=text,
+                     parse_mode=ParseMode.MARKDOWN)
 
 
 def set_ping(bot, update, args, job_queue, chat_data):
@@ -57,13 +61,16 @@ def set_ping(bot, update, args, job_queue, chat_data):
         from_user_complite = (str(from_user.id) + ', ' +
                              str(from_user.first_name) + ' ' +
                              str(from_user.last_name))
+        entities = update.message.parse_entities()
+        entity = list(entities.keys())[1]
 
         Message.create(
             chat_id=chat_id,
             created=datetime.now(),
             content=ping_text,
             from_user=from_user_complite,
-            to_user=to_user
+            to_user_id=entity['user']['id'],
+            to_user=entity['user']['first_name']
         )
 
         # Add job to queue
