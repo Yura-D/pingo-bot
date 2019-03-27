@@ -21,13 +21,29 @@ logger = logging.getLogger(__name__)
 
 
 def start(bot, update):
-    update.message.reply_text('Hi! Use /ping_on <seconds> ' +
-                                  '<mention user with "@" symbol> ' +
-                                  '<message, if you wish>')
+    update.message.reply_text(
+        'Hi! This is Pingo bot. He will remind someone ' +
+        'from the group members about something ;)\n\n' +
+        'Use /ping_on <seconds> ' +
+        '<mention user with "@" symbol> ' +
+        '<message, if you wish>\n\n' +
+        'If you want to unset ping type /ping_off'
+        )
 
 
 def help_message(bot, update):
-    update.message.reply_text('Help message')
+    update.message.reply_text(
+        '/help - to show you what we have\n' +
+                              
+        '/start - to get instruction how to ' +
+        'start ping bot\n' +
+        
+        '/ping_on - use /ping_on <seconds> ' +
+        '<mention user with "@" symbol> ' +
+        '<message, if you wish> to start Pingo bot\n'
+        
+        '/ping_off - to unset Pingo-bot'
+        )
 
 
 def alarm(bot, job):
