@@ -21,7 +21,9 @@ logger = logging.getLogger(__name__)
 
 
 def start(bot, update):
-    update.message.reply_text('Hi! Use /set <seconds> to set a timer')
+    update.message.reply_text('Hi! Use /ping_on <seconds> ' +
+                                  '<mention user with "@" symbol> ' +
+                                  '<message, if you wish>')
 
 
 def help_message(bot, update):
@@ -29,7 +31,7 @@ def help_message(bot, update):
 
 
 def alarm(bot, job):
-    """Send the alarm message."""
+    """Send the ping message."""
     query = Message.select().where(Message.chat_id == job.context) \
                                .order_by(Message.created.desc()).get()
     text = (f"[{query.to_user}](tg://user?id={query.to_user_id}) " +
@@ -49,20 +51,28 @@ def set_ping(bot, update, args, job_queue, chat_data):
             update.message.reply_text('Sorry we can not go back to future!')
             return
         
-        to_user = args[1]
-        if to_user[0] != '@':
-            update.message.reply_text('Please add user name ' +
-                                      'that starts with "@"!')
+        entities = update.message.parse_entities()
+        try:
+            entity = list(entities.keys())[1]
+        except:
+            update.message.reply_text("Please mention someone. " +
+                                      "Pingo-bot don't know what " +
+                                      "he need to do ;)")
+            return
+        
+        if not entity.user:
+            update.message.reply_text("Please mention a user in the group")
+            return
+
+        user_arg = args[1]
         all_text = update.message.text
-        start_text = all_text.find(to_user) + len(to_user)
+        start_text = all_text.find(user_arg) + len(user_arg)
         ping_text = all_text[start_text:].lstrip()
 
         from_user = update.message.from_user
         from_user_complite = (str(from_user.id) + ', ' +
-                             str(from_user.first_name) + ' ' +
-                             str(from_user.last_name))
-        entities = update.message.parse_entities()
-        entity = list(entities.keys())[1]
+                              str(from_user.first_name) + ' ' +
+                              str(from_user.last_name))        
 
         Message.create(
             chat_id=chat_id,
@@ -80,7 +90,9 @@ def set_ping(bot, update, args, job_queue, chat_data):
         update.message.reply_text('Ping successfully set!')
 
     except (IndexError, ValueError):
-        update.message.reply_text('Usage: /set <seconds>')
+        update.message.reply_text('Usage: /ping_on <seconds> ' +
+                                  '<mention user with "@" symbol> ' +
+                                  '<message, if you wish>')
 
 
 def unping(bot, update, chat_data):
