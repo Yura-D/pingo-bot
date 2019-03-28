@@ -24,7 +24,7 @@ def start(bot, update):
     update.message.reply_text(
         'Hi! This is Pingo bot. He will remind someone ' +
         'from the group members about something ;)\n\n' +
-        'Use /ping_on <seconds> ' +
+        'Use /ping_on <minutes> ' +
         '<mention user with "@" symbol> ' +
         '<message, if you wish>\n\n' +
         'If you want to unset ping type /ping_off'
@@ -38,7 +38,7 @@ def help_message(bot, update):
         '/start - to get instruction how to ' +
         'start ping bot\n' +
         
-        '/ping_on - use /ping_on <seconds> ' +
+        '/ping_on - use /ping_on <minutes> ' +
         '<mention user with "@" symbol> ' +
         '<message, if you wish> to start Pingo bot\n'
         
@@ -61,12 +61,14 @@ def set_ping(bot, update, args, job_queue, chat_data):
     """Add a job to the queue."""
     chat_id = update.message.chat_id
     try:
-        # args[0] should contain the time for the timer in seconds
+        # args[0] should contain the time for the ping in minutes
         interval = int(args[0])
         if interval <= 0:
             update.message.reply_text('Sorry we can not go back to future!')
             return
-        
+        else:
+            min_interval = interval * 60
+
         entities = update.message.parse_entities()
         try:
             entity = list(entities.keys())[1]
@@ -100,13 +102,13 @@ def set_ping(bot, update, args, job_queue, chat_data):
         )
 
         # Add job to queue
-        job = job_queue.run_repeating(alarm, interval, context=chat_id)
+        job = job_queue.run_repeating(alarm, min_interval, context=chat_id)
         chat_data['job'] = job
         
         update.message.reply_text('Ping successfully set!')
 
     except (IndexError, ValueError):
-        update.message.reply_text('Usage: /ping_on <seconds> ' +
+        update.message.reply_text('Usage: /ping_on <minutes> ' +
                                   '<mention user with "@" symbol> ' +
                                   '<message, if you wish>')
 
