@@ -111,15 +111,17 @@ def set_ping(bot, update, args, job_queue, chat_data):
                                   '<message, if you wish>')
 
 
-def unping(bot, update, chat_data):
-    """Remove the job if the user changed their mind."""
+def unping(bot, update, chat_data, job_queue):
+    """Remove the job if the user want to stop it."""
     if 'job' not in chat_data:
         update.message.reply_text('You have no active Pings')
         return
 
     job = chat_data['job']
-    job.schedule_removal()
     del chat_data['job']
+    for j in job_queue.jobs():
+        if j.context == job.context:
+            j.schedule_removal()
 
     update.message.reply_text('Ping successfully unset!')
 
@@ -140,7 +142,8 @@ def main():
                                   pass_args=True,
                                   pass_job_queue=True,
                                   pass_chat_data=True))
-    dp.add_handler(CommandHandler("ping_off", unping, pass_chat_data=True))
+    dp.add_handler(CommandHandler("ping_off", unping, pass_chat_data=True,
+                                                      pass_job_queue=True))
 
     dp.add_error_handler(error)
 
